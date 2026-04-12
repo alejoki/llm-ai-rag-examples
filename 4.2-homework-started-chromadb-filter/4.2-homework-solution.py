@@ -130,6 +130,10 @@ def print_results(label, results, show_distances=False):
 print("\n--- EXERCISE 1: Basic metadata filter ---")
 
 # Write your code here:
+results = collection.get(
+    where={"category": "vpn"}
+)
+print_results("All VPN documents:\n", results)
 
 
 # ---------------------------------------------------------------------------
@@ -143,6 +147,16 @@ print("\n--- EXERCISE 1: Basic metadata filter ---")
 print("\n--- EXERCISE 2: Combined metadata filters ---")
 
 # Write your code here:
+results = collection.get(
+    where={
+        "$and": [
+            {"priority": "high"},
+            {"year": 2025},
+            {"verified": True}
+        ]
+    }
+)
+print_results("High priority, 2025, verified:\n", results)
 
 
 # ---------------------------------------------------------------------------
@@ -158,6 +172,23 @@ print("\n--- EXERCISE 3: Full text search ---")
 
 # Write your code here:
 
+# TODO A: Documents containing "student"
+results_a = collection.get(
+    where_document={"$contains": "student"}
+)
+print_results("Documents containing 'student':\n", results_a)
+
+# TODO B: Documents containing "student" but NOT "password"
+results_b = collection.get(
+    where_document={
+        "$and": [
+            {"$contains": "student"},
+            {"$not_contains": "password"}
+        ]
+    }
+)
+print_results("Documents containing 'student' but not 'password':\n", results_b)
+
 
 # ---------------------------------------------------------------------------
 # EXERCISE 4 — Combining semantic query with metadata and text filters
@@ -171,4 +202,18 @@ print("\n--- EXERCISE 3: Full text search ---")
 
 print("\n--- EXERCISE 4: Semantic query + metadata filter + text filter ---")
 
-# Write your code here:
+# Filtered query
+filtered_results = collection.query(
+    query_texts=["how do I print documents on campus"],
+    n_results=5,
+    where={"category": "printing"},
+    where_document={"$contains": "page"}
+)
+print_results("Semantic query + filters:\n", filtered_results, show_distances=True)
+
+# Unfiltered query for comparison
+unfiltered_results = collection.query(
+    query_texts=["how do I print documents on campus"],
+    n_results=5
+)
+print_results("Unfiltered comparison:\n", unfiltered_results, show_distances=True)
